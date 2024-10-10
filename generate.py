@@ -18,6 +18,17 @@ import re
 import unicodedata
 import os
 
+
+# Specify colors
+colors = [
+    "B", # black
+    "W", # white
+    "R", # red
+    "U", # blue (underwater)
+    "G", # green,
+    "N", # colorless (neutral)
+]
+
 # Specify the formats to include in legalities
 formats = [
     "standard",
@@ -31,8 +42,17 @@ parser = argparse.ArgumentParser(description="Turn your goldfish format collecti
 parser.add_argument("--format", type=str, help="Format to filter by (e.g. standard, alchemy, brawl, or standardbrawl)")
 parser.add_argument("--colors", nargs='+', type=str, help="Only include cards that include one or more specified colors (e.g. --colors W B R G U N), note: B=black, U=blue, N=Colorless")
 parser.add_argument("--no-colors", nargs='+', type=str, help="Exclude cards that include certain colors (e.g. --colors W B R G U N), note: B=black, U=blue, N=Colorless")
+parser.add_argument("-e", action=argparse.BooleanOptionalAction, help="Exclusive color matching. Use with --colors to automatically exclude any not listed.")
 parser.add_argument("-v", action=argparse.BooleanOptionalAction, help="Output information to the terminal as the script runs.")
 args = parser.parse_args()
+
+# Automatically populate --no-colors if both --colors and -e are provided
+if args.colors and args.e:
+    # Calculate colors not mentioned in --colors
+    args.no_colors = [color for color in colors if color not in args.colors]
+    
+    if args.v:
+        print(f"Excluding colors: {', '.join(args.no_colors)}")
 
 # Count the number of cards we process
 output_count=0
